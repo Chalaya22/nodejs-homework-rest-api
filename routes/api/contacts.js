@@ -3,9 +3,13 @@ const contacts = require("../../models/contacts");
 
 const router = express.Router(); // метод Router() создаал страницу web-serverа с маршрутами контактов
 
-router.get("/", async (req, res, next) => {
-  const result = await contacts.listContacts();
-  res.json(result);
+router.get("/", async (req, res) => {
+  try {
+    const result = await contacts.listContacts();
+    res.status(200).json(result);
+  } catch (error) {
+    res.status(500).json({ massage: "Server error" });
+  }
 });
 
 router.get("/:contactId", async (req, res, next) => {
