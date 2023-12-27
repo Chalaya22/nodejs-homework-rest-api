@@ -2,7 +2,7 @@ const express = require("express");
 const contacts = require("../../models/contacts");
 const Joi = require("joi");
 
-const router = express.Router(); // метод Router() создаал страницу web-serverа с маршрутами контактов
+const router = express.Router();
 const { HttpError } = require("../../helpers");
 
 const addSchema = Joi.object({
