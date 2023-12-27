@@ -55,10 +55,24 @@ const addContact = async (name, email, phone) => {
   console.log("You added contact: ");
   return newAddContact;
 };
+const updateContact = async (id, body) => {
+  const contacts = await readContact();
+  const index = contacts.findIndex((contact) => contact.id === id);
+  if (index === -1) {
+    return null;
+  }
+  const newContacts = [
+    ...contacts.slice(0, index),
+    ...contacts.slice(index + 1),
+  ];
+  await writeContact(newContacts);
+  return contacts[index];
+};
 
 module.exports = {
   listContacts,
   getContactById,
   removeContact,
   addContact,
+  updateContact,
 };
