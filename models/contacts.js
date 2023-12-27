@@ -55,9 +55,9 @@ const addContact = async (name, email, phone) => {
   console.log("You added contact: ");
   return newAddContact;
 };
-const updateContact = async (id, body) => {
+const updateContact = async (contactId, body) => {
   const contacts = await readContact();
-  const index = contacts.findIndex((contact) => contact.id === id);
+  const index = contacts.findIndex((contact) => contact.id === contactId);
   if (index === -1) {
     return null;
   }
