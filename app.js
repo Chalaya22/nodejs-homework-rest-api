@@ -13,14 +13,13 @@ app.use(express.json());
 
 app.use("/api/contacts", contactsRouter); // коти прийде запит з /api/contacts,шукай його обробник тут
 
-app.use((err, req, res, next) => {
-  const { status = 400, message = " " } = err;
-  res.status(status).json({ message });
+app.use((req, res) => {
+  res.status(404).json({ message: "Not found" });
 });
 
 app.use((err, req, res, next) => {
   const { status = 500, massage = "Server error" } = err;
-  res.status(status).json({ massage });
+  res.status(err.status || 500).json({ massage });
 });
 
 module.exports = app;
