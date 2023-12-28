@@ -62,7 +62,7 @@ const updateContact = async (id, body) => {
     return null;
   }
   contacts[index] = { id, ...body };
-  await writeContact(contactsPath, JSON.stringify(contacts, null, 2));
+  await writeContact(contacts);
   return contacts[index];
 };
 

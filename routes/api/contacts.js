@@ -15,7 +15,7 @@ const addSchema = Joi.object({
 router.get("/", async (req, res, next) => {
   try {
     const result = await contacts.listContacts();
-    res.status(200).json(result);
+    res.json({ status: "success", code: 200, body: { result } });
   } catch (error) {
     next(error);
   }
@@ -28,7 +28,7 @@ router.get("/:id", async (req, res, next) => {
     if (!result) {
       throw HttpError(404, "Not found");
     }
-    res.status(200).json(result);
+    res.json({ status: "success", code: 200, body: { result } });
   } catch (error) {
     next(error);
   }
@@ -41,7 +41,7 @@ router.post("/", async (req, res, next) => {
       throw HttpError(400, "Missing required name field");
     }
     const result = await contacts.addContact(req.body);
-    res.status(201).json(result);
+    res.json({ status: "success", code: 201, body: { result } });
   } catch (error) {
     next(error);
   }
@@ -71,8 +71,8 @@ router.put("/:id", async (req, res, next) => {
     if (!result) {
       throw HttpError(404, "Not found");
     }
-    // res.status(200).json(result);
-    res.json({ status: "success", code: 200, data: { result } });
+
+    res.json({ status: "success", code: 200, body: { result } });
   } catch (error) {
     next(error);
   }
