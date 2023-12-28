@@ -55,17 +55,14 @@ const addContact = async (name, email, phone) => {
   console.log("You added contact: ");
   return newAddContact;
 };
-const updateContact = async (contactId, body) => {
+const updateContact = async (id, body) => {
   const contacts = await readContact();
-  const index = contacts.findIndex((contact) => contact.id === contactId);
+  const index = contacts.findIndex((contact) => contact.id === id);
   if (index === -1) {
     return null;
   }
-  const newContacts = [
-    ...contacts.slice(0, index),
-    ...contacts.slice(index + 1),
-  ];
-  await writeContact(newContacts);
+  contacts[index] = { id, ...body };
+  await writeContact(contactsPath, JSON.stringify(contacts, null, 2));
   return contacts[index];
 };
 

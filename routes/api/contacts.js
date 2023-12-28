@@ -1,6 +1,7 @@
 const express = require("express");
 const contacts = require("../../models/contacts");
 const Joi = require("joi");
+// const { NotFound } = require("http-errors");
 
 const router = express.Router();
 const { HttpError } = require("../../helpers");
@@ -70,7 +71,8 @@ router.put("/:id", async (req, res, next) => {
     if (!result) {
       throw HttpError(404, "Not found");
     }
-    res.status(200).json(result);
+    // res.status(200).json(result);
+    res.json({ status: "success", code: 200, data: { result } });
   } catch (error) {
     next(error);
   }
