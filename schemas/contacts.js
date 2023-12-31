@@ -11,4 +11,10 @@ const addSchema = Joi.object({
     "any.required": `missing required phone field`,
   }),
 });
-module.exports = { addSchema };
+
+const updateSchema = Joi.object({
+  name: Joi.string(),
+  email: Joi.string().email(),
+  phone: Joi.string(),
+});
+module.exports = { addSchema, updateSchema };
