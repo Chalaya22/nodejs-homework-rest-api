@@ -1,6 +1,7 @@
 const fs = require("node:fs/promises");
 const path = require("path");
 const crypto = require("crypto");
+
 const contactsPath = path.join(__dirname, "./contacts.json");
 
 const readContact = async () => {
@@ -41,20 +42,18 @@ async function removeContact(contactId) {
   return contacts[index];
 }
 
-const addContact = async (name, email, phone) => {
+const addContact = async (data) => {
   const contacts = await readContact();
   const newAddContact = {
     id: crypto.randomUUID(),
-    name,
-    email,
-    phone,
+    ...data,
   };
   contacts.push(newAddContact);
   await writeContact(contacts);
 
-  console.log("You added contact: ");
   return newAddContact;
 };
+
 const updateContact = async (id, body) => {
   const contacts = await readContact();
   const index = contacts.findIndex((contact) => contact.id === id);
