@@ -1,6 +1,8 @@
 const express = require("express");
 const logger = require("morgan");
 const cors = require("cors");
+const dotenv = require("dotenv");
+dotenv.config();
 
 const app = express(); // це є наш веб сервер
 const contactsRouter = require("./routes/api/contacts"); // импортируем страницу с контактавми ( часть веб-сервера)
