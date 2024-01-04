@@ -1,6 +1,6 @@
-const { Shcema, model } = require("mongooose");
+const { Schema, model } = require("mongoose");
 
-const contactShcema = new Shcema({
+const contactSchema = new Schema({
   name: {
     type: String,
     required: [true, "Set name for contact"],
@@ -11,11 +11,11 @@ const contactShcema = new Shcema({
   phone: {
     type: String,
   },
-  //   favorite: {
-  //     type: Boolean,
-  //     default: false,
-  //   },
+  favorite: {
+    type: Boolean,
+    default: false,
+  },
 });
-const Contact = model("contact", contactShcema);
+const Contact = model("contact", contactSchema);
 
 module.exports = Contact;
