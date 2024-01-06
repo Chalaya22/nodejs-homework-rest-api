@@ -46,8 +46,10 @@ const updateSchema = Joi.object({
   phone: Joi.string(),
   favorite: Joi.boolean(),
 });
-
-const schemas = { addSchema, updateSchema };
+const updateFavoriteSchema = Joi.object({
+  favorite: Joi.boolean().required(),
+});
+const schemas = { addSchema, updateSchema, updateFavoriteSchema };
 
 const Contact = model("contact", contactSchema);
 
