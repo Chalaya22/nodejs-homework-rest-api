@@ -20,8 +20,11 @@ const register = async (req, res) => {
   const newUser = await User.create({ ...req.body, password: hashPassword });
 
   res.status(201).json({
-    password: newUser.password,
-    email: newUser.email,
+    user: {
+      password: newUser.password,
+      email: newUser.email,
+      subscription: newUser.subscription,
+    },
   });
 };
 
@@ -42,7 +45,13 @@ const login = async (req, res) => {
   };
   const token = jwt.sign(payload, SECRET_KEY, { expiresIn: "23h" });
 
-  res.status(201).json({ token });
+  res.status(201).json({
+    token: token,
+    user: {
+      email: user.email,
+      subscription: user.subscription,
+    },
+  });
 };
 
 module.exports = {
