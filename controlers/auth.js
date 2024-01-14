@@ -44,6 +44,7 @@ const login = async (req, res) => {
     id: user._id,
   };
   const token = jwt.sign(payload, SECRET_KEY, { expiresIn: "23h" });
+  await User.findByIdAndUpdate(user._id, { token });
 
   res.status(201).json({
     token: token,
@@ -61,9 +62,20 @@ const getCurrent = async (req, res) => {
     subscription,
   });
 };
+// logout
+const logout = async (req, res) => {
+  const { _id: id } = req.user;
+  const user = await User.findById(id);
+  if (!user) {
+    throw HttpError(401, "Not authorized");
+  }
+  await User.findByIdAndUpdate(id, { token: " " });
+  res.status(204).json();
+};
 
 module.exports = {
   register: ctrlWrapper(register),
   login: ctrlWrapper(login),
   getCurrent: ctrlWrapper(getCurrent),
+  logout: ctrlWrapper(logout),
 };
