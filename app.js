@@ -14,7 +14,7 @@ app.use(logger(formatsLogger));
 app.use(cors());
 app.use(express.json());
 
-app.use("/api/auth", authRouter); // коти прийде запит з /api/auth,треба оброблювати його authRouter
+app.use("/api/users", authRouter); // коти прийде запит з /api/auth,треба оброблювати його authRouter
 app.use("/api/contacts", contactsRouter); // коти прийде запит з /api/contacts,треба оброблювати його contactsRoute
 
 app.use((req, res) => {
