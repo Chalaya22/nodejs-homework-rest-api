@@ -31,7 +31,7 @@ router.patch(
   validateBody(schemas.updateFavoriteSchema),
   ctrl.updateStatusContact
 );
-router.delete("/:id", isValidId, ctrl.removeContact);
+router.delete("/:id", authenticate, isValidId, ctrl.removeContact);
 
 router.put(
   "/:id",
