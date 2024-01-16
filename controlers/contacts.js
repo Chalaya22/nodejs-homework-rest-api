@@ -4,13 +4,21 @@ const { HttpError, ctrlWrapper } = require("../helpers");
 
 const listContacts = async (req, res) => {
   const { _id: owner } = req.user;
-  const { page = 1, limit = 20 } = req.query;
+  const { page = 1, limit = 20, favorite = null } = req.query;
   const skip = (page - 1) * limit;
-  const result = await Contact.find({ owner }, "-createdAt -updatedAt", {
-    skip,
-    limit,
-  });
-  res.status(200).json(result);
+  if (favorite) {
+    const result = await Contact.find({ owner, favorite }, "", {
+      skip,
+      limit,
+    });
+    res.status(200).json(result);
+  } else {
+    const result = await Contact.find({ owner }, "", {
+      skip,
+      limit,
+    });
+    res.status(200).json(result);
+  }
 };
 
 const getContactById = async (req, res) => {
@@ -52,6 +60,7 @@ const updateContact = async (req, res) => {
 
   res.status(200).json(result);
 };
+// favorite
 const updateStatusContact = async (req, res) => {
   const { id } = req.params;
   const { _id: owner } = req.user;
