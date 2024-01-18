@@ -13,6 +13,8 @@ const formatsLogger = app.get("env") === "development" ? "dev" : "short";
 app.use(logger(formatsLogger));
 app.use(cors());
 app.use(express.json());
+// avatar
+app.use(express.static("public"));
 
 app.use("/api/users", authRouter); // коти прийде запит з /api/auth,треба оброблювати його authRouter
 app.use("/api/contacts", contactsRouter); // коти прийде запит з /api/contacts,треба оброблювати його contactsRoute
