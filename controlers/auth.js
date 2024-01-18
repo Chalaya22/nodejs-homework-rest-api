@@ -4,6 +4,8 @@ const { HttpError, ctrlWrapper } = require("../helpers");
 
 const bcrypt = require("bcrypt");
 
+// avatars
+const Jimp = require("jimp");
 const gravatar = require("gravatar");
 const path = require("path");
 
@@ -103,12 +105,20 @@ const updateSubscription = async (req, res) => {
 const updateAvatar = async (req, res) => {
   const { _id } = req.user;
   const { path: tmpUpload, originalname } = req.file;
-  const resultUpload = path.join(avatarsDir, originalname);
+  const fileName = `${_id}_${originalname}`;
+  const resultUpload = path.join(avatarsDir, fileName);
   await fs.rename(tmpUpload, resultUpload);
-  const avatarURL = path.join("avatars", originalname);
-  await User.findByIdAndUpdate(_id, "avatarURL");
+  const avatarURL = path.join("avatars", fileName);
 
-  res.json({ avatarURL });
+  // const image = await Jimp.read(tmpUpload);
+  // await image.resize(250, 250).writeAsync(tmpUpload);
+
+  const user = await User.findByIdAndUpdate(_id, { avatarURL });
+  if (!user) {
+    throw HttpError(401, "Not authorized");
+  }
+
+  res.status(200).json({ avatarURL: user.avatarURL });
 };
 
 module.exports = {
