@@ -103,6 +103,9 @@ const updateSubscription = async (req, res) => {
 // updateAvatar;
 const updateAvatar = async (req, res) => {
   const { _id } = req.user;
+  if (!req.file) {
+    throw HttpError(400, "missing  field avatar");
+  }
   const { path: tempUpload, originalname } = req.file;
 
   const fileName = `${_id}_${originalname}`;
