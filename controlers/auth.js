@@ -15,8 +15,6 @@ const fs = require("fs/promises");
 // token
 const jwt = require("jsonwebtoken");
 
-// const { path } = require("../app");
-
 const { SECRET_KEY } = process.env;
 
 // register
@@ -38,6 +36,7 @@ const register = async (req, res) => {
     user: {
       email: newUser.email,
       subscription: newUser.subscription,
+      avatarURL: newUser.avatarURL,
     },
   });
 };
@@ -105,20 +104,24 @@ const updateSubscription = async (req, res) => {
 const updateAvatar = async (req, res) => {
   const { _id } = req.user;
   const { path: tempUpload, originalname } = req.file;
+
   const fileName = `${_id}_${originalname}`;
+
   const resultUpload = path.join(avatarsDir, fileName);
+
   await fs.rename(tempUpload, resultUpload);
   const avatarURL = path.join("avatars", fileName);
 
   const image = await Jimp.read(resultUpload);
   await image.resize(250, 250).writeAsync(resultUpload);
 
-  const user = await User.findByIdAndUpdate(_id, { avatarURL });
+  const user = await User.findByIdAndUpdate(_id, { avatarURL }, { new: true });
+
   if (!user) {
     throw HttpError(401, "Not authorized");
   }
 
-  res.status(200).json({ avatarURL: user.avatarURL });
+  res.status(200).json({ avatarURL });
 };
 
 module.exports = {
