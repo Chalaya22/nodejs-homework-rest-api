@@ -4,6 +4,14 @@ const { HttpError, ctrlWrapper } = require("../helpers");
 
 const bcrypt = require("bcrypt");
 
+// avatars
+const Jimp = require("jimp");
+const gravatar = require("gravatar");
+const path = require("path");
+
+const avatarsDir = path.join(__dirname, "../", "public", "avatars");
+const fs = require("fs/promises");
+
 // token
 const jwt = require("jsonwebtoken");
 
@@ -17,12 +25,18 @@ const register = async (req, res) => {
     throw HttpError(409, "Email in use");
   }
   const hashPassword = await bcrypt.hash(password, 10);
-  const newUser = await User.create({ ...req.body, password: hashPassword });
+  const avatarURL = gravatar.url(email);
+  const newUser = await User.create({
+    ...req.body,
+    password: hashPassword,
+    avatarURL,
+  });
 
   res.status(201).json({
     user: {
       email: newUser.email,
       subscription: newUser.subscription,
+      avatarURL: newUser.avatarURL,
     },
   });
 };
@@ -86,6 +100,32 @@ const updateSubscription = async (req, res) => {
     res.status(200).json(result);
   }
 };
+// updateAvatar;
+const updateAvatar = async (req, res) => {
+  const { _id } = req.user;
+  if (!req.file) {
+    throw HttpError(400, "missing  field avatar");
+  }
+  const { path: tempUpload, originalname } = req.file;
+
+  const fileName = `${_id}_${originalname}`;
+
+  const resultUpload = path.join(avatarsDir, fileName);
+
+  await fs.rename(tempUpload, resultUpload);
+  const avatarURL = path.join("avatars", fileName);
+
+  const image = await Jimp.read(resultUpload);
+  await image.resize(250, 250).writeAsync(resultUpload);
+
+  const user = await User.findByIdAndUpdate(_id, { avatarURL }, { new: true });
+
+  if (!user) {
+    throw HttpError(401, "Not authorized");
+  }
+
+  res.status(200).json({ avatarURL });
+};
 
 module.exports = {
   register: ctrlWrapper(register),
@@ -93,4 +133,5 @@ module.exports = {
   getCurrent: ctrlWrapper(getCurrent),
   logout: ctrlWrapper(logout),
   updateSubscription: ctrlWrapper(updateSubscription),
+  updateAvatar: ctrlWrapper(updateAvatar),
 };
