@@ -1,4 +1,5 @@
-const nodemailers = require("nodemailers");
+// функція, яка відправляє листа
+const nodemailer = require("nodemailer");
 require("dotenv").config();
 
 const { META_PASSWORD } = process.env;
@@ -12,10 +13,17 @@ const nodemailerConfig = {
     pass: META_PASSWORD,
   },
 };
-const transport = nodemailers.createTransport(nodemailerConfig);
-const email = {
-  to: "xahit80553@rentaen.com",
-  from: "chalayaolga222@meta.ua",
-  subject: "Test ",
-  http: "<p>Test email from host: 3000</p>",
+const transport = nodemailer.createTransport(nodemailerConfig);
+
+const sendEmail = async (data) => {
+  const email = { ...data, from: "chalayaolga222@meta.ua" };
+  await transport.sendMail(email);
+  return true;
 };
+// const email = {
+//   to: "sakar73632@rentaen.com",
+//   from: "chalayaolga222@meta.ua",
+//   subject: "Test ",
+//   http: "<p>Test email from host: 3000</p>",
+// };
+module.exports = sendEmail;

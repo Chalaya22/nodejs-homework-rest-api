@@ -1,8 +1,9 @@
 const { User } = require("../models/user");
 
-const { HttpError, ctrlWrapper } = require("../helpers");
+const { HttpError, ctrlWrapper, sendEmail } = require("../helpers");
 
 const bcrypt = require("bcrypt");
+const { nanoid } = require("nanoid");
 
 // avatars
 const Jimp = require("jimp");
@@ -15,9 +16,9 @@ const fs = require("fs/promises");
 // token
 const jwt = require("jsonwebtoken");
 
-const { SECRET_KEY } = process.env;
+const { SECRET_KEY, BASE_URL } = process.env;
 
-// register
+// REGISTER
 const register = async (req, res) => {
   const { email, password } = req.body;
   const user = await User.findOne({ email });
@@ -26,11 +27,21 @@ const register = async (req, res) => {
   }
   const hashPassword = await bcrypt.hash(password, 10);
   const avatarURL = gravatar.url(email);
+  const verificationToken = nanoid();
   const newUser = await User.create({
     ...req.body,
     password: hashPassword,
     avatarURL,
+    verificationToken,
   });
+  // створюємо еmail на підтвердження
+  const verifyEmail = {
+    to: email,
+    subject: "Verify email",
+    html: `<a target= "_blank" href = "${BASE_URL}/api/users/verify/${verificationToken}">Click verify email</a>`,
+  };
+  //  відсилаємо еmail на підтвердження
+  await sendEmail(verifyEmail);
 
   res.status(201).json({
     user: {
@@ -41,12 +52,52 @@ const register = async (req, res) => {
   });
 };
 
-// login
+// VERYFY
+const verifyEmail = async (req, res) => {
+  const { verificationToken } = req.params;
+  const user = await User.findOne({ verificationToken });
+  if (!user) {
+    throw HttpError(404, " User not found");
+  }
+  await User.findByIdAndUpdate(user._id, {
+    verify: true,
+    verificationToken: null,
+  });
+  res.status(200).json({ message: "Verification successful" });
+};
+
+// RESENDVERIFYEMAIL
+const resendVerifyEmail = async (req, res) => {
+  const { email } = req.body;
+  const user = await User.findOne({ email });
+  // if (!req.email) {
+  //   throw HttpError(400, "missing required field email");
+  // }
+  if (!user) {
+    throw HttpError(404, "Email not found");
+  }
+  if (!user.verify) {
+    throw HttpError(400, "Verification has already been passed");
+  }
+  const verifyEmail = {
+    to: email,
+    subject: "Verify email",
+    html: `<a target= "_blank" href = "${BASE_URL}/api/users/verify/${user.verificationToken}">Click verify email</a>`,
+  };
+  await sendEmail(verifyEmail);
+
+  res.status(200).json({ message: "Verification email sent" });
+};
+
+// LOGIN
 const login = async (req, res) => {
   const { email, password } = req.body;
   const user = await User.findOne({ email });
   if (!user) {
     throw HttpError(401, "Email or password is wrong");
+  }
+  if (!user.verify) {
+    throw HttpError(404, "User not found");
   }
   const passwordCompare = await bcrypt.compare(password, user.password);
   if (!passwordCompare) {
@@ -67,7 +118,7 @@ const login = async (req, res) => {
     },
   });
 };
-// getCurrent
+// GETCURRENT
 const getCurrent = async (req, res) => {
   const { email, subscription } = req.user;
   res.status(200).json({
@@ -75,7 +126,7 @@ const getCurrent = async (req, res) => {
     subscription,
   });
 };
-// logout
+// LOGOUT
 const logout = async (req, res) => {
   const { _id: id } = req.user;
   const user = await User.findById(id);
@@ -85,7 +136,7 @@ const logout = async (req, res) => {
   await User.findByIdAndUpdate(id, { token: " " });
   res.status(204).json();
 };
-// updateSubscription
+// UPDATESUBSRUBTION
 const updateSubscription = async (req, res) => {
   const { id: _id } = req.user;
   const { subscription } = req.body;
@@ -100,7 +151,7 @@ const updateSubscription = async (req, res) => {
     res.status(200).json(result);
   }
 };
-// updateAvatar;
+// UPDATEAVATAR
 const updateAvatar = async (req, res) => {
   const { _id } = req.user;
   if (!req.file) {
@@ -134,4 +185,6 @@ module.exports = {
   logout: ctrlWrapper(logout),
   updateSubscription: ctrlWrapper(updateSubscription),
   updateAvatar: ctrlWrapper(updateAvatar),
+  verifyEmail: ctrlWrapper(verifyEmail),
+  resendVerifyEmail: ctrlWrapper(resendVerifyEmail),
 };
