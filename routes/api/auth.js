@@ -6,6 +6,12 @@ const router = express.Router(); // обьект где мы будем запи
 
 // sigh up
 router.post("/register", validateBody(schemas.registerSchema), ctrl.register);
+router.get("/verify/:verificationToken", ctrl.verifyEmail);
+router.post(
+  "/verify",
+  validateBody(schemas.emailShema),
+  ctrl.resendVerifyEmail
+);
 // sing in
 router.post("/login", validateBody(schemas.loginSchema), ctrl.login);
 // current
